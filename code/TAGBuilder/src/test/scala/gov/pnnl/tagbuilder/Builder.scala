@@ -21,7 +21,7 @@ import gov.pnnl.builders.SparkContextInitializer
  */
 class Builder extends BuilderTestAbstract {
 
-	  val testGSimpleF = "./data/testGSimple.csv"
+	  /*val testGSimpleF = "./data/testGSimple.csv"
 	  	println("in test class")
     val grdd = TAGBuilder.init_rdd(testGSimpleF, SparkContextInitializer.sc)
     val vRDD = TAGBuilder.get_vertexRDD_from_tagrdd(grdd)
@@ -32,5 +32,5 @@ class Builder extends BuilderTestAbstract {
 	it should "have 11 vertices" in {
 		assert(vRDD.count === 11)
 	}
-
+*/
 }

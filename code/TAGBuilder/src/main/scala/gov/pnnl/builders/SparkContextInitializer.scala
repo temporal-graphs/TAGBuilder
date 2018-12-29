@@ -7,19 +7,27 @@ import org.apache.log4j.Level
 
 object SparkContextInitializer {
 	
-	
-  val sparkConf = new SparkConf()
-    .setAppName("DARPA-MAA SDGG Graph Generation")
-    .set("spark.rdd.compress", "true")
-    .set("spark.shuffle.blockTransferService", "nio")
-    .set("spark.serializer",
-      "org.apache.spark.serializer.KryoSerializer")
-    .setMaster("local")
 
+  def getSparkConf(): SparkConf =
+  {
 
-  sparkConf.registerKryoClasses( Array.empty )
-  val sc = new SparkContext( sparkConf )
-  Logger.getLogger("org").setLevel(Level.OFF)
-  Logger.getLogger("akka").setLevel(Level.OFF)
+    val sparkConf = new SparkConf()
+      .set("spark.rdd.compress", "true")
+      .set("spark.shuffle.blockTransferService", "nio")
+      .set("spark.serializer",
+        "org.apache.spark.serializer.KryoSerializer")
+
+    return  sparkConf
+  }
+
+  def getSparkContext(givenConf: SparkConf): SparkContext =
+  {
+    givenConf.registerKryoClasses( Array.empty )
+    val sc = new SparkContext( givenConf )
+    Logger.getLogger("org").setLevel(Level.OFF)
+    Logger.getLogger("akka").setLevel(Level.OFF)
+
+    return sc
+  }
 
 }
