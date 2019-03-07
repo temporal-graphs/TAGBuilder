@@ -8,6 +8,8 @@ import org.apache.spark.graphx.Edge
 import org.apache.spark.graphx.Graph
 import gov.pnnl.datamodel.GlobalTypes._
 import org.apache.spark.graphx.PartitionStrategy
+import org.apache.spark.sql.SQLContext
+import org.graphframes.GraphFrame
 
 
 object TAGBuilder {
@@ -69,4 +71,57 @@ object TAGBuilder {
     tag_rdd.get_simple_tagrdd.flatMap(nd => Iterator((nd._1, nd._1), (nd._3, nd._3))).distinct
   }
 
+  def getGraphFrameFromGDF(gdf_v_filepath :String, gdf_e_filepath :String,sep:String, sc:SparkContext): GraphFrame = {
+    /*
+     * Read node def file
+     */
+      val gSQLContext = new SQLContext(sc)
+      import gSQLContext.implicits._
+      val v = sc.textFile(gdf_v_filepath).filter(line => line.startsWith("nodedef") == false).map { line =>
+        try {
+          val fields = line.split(sep)
+          val id :Int= fields(0).toInt
+          val vtype :String = fields(1)
+          val lat :Double= fields(2).toDouble
+          val long :Double = fields(3).toDouble
+          val wt :Double = fields(4).toDouble
+          val label :String= fields(5)
+          var inNAI :Boolean= false
+          if (fields.length > 6)
+            inNAI = fields(6).toBoolean
+          (id, vtype, lat,long,wt, label, inNAI)
+        } catch {
+          case ex: java.lang.ArrayIndexOutOfBoundsException => {
+            println("AIOB:", line)
+            (-1, "-1", 1.0,1.0,  0.0, "NA", false)
+          }
+          case ex: java.lang.NumberFormatException =>
+            println("AIOB2:", line)
+            (-1, "-1", 1.0,1.0,  0.0, "NA", false)
+        }
+      }.distinct.toDF("id","vtype","lat","long","wt","label","inNAI")
+
+    val e = sc.textFile(gdf_e_filepath).filter(line => line.startsWith("edgedef") == false).map { line =>
+      try {
+        val fields = line.split(sep)
+        val src :Int= fields(0).toInt
+        val etype :String= fields(1)
+        val dst :Int= fields(2).toInt
+        val time :Double = fields(3).toDouble
+        val wt :Double= fields(4).toDouble
+        val label :String= fields(5)
+        (src,etype,dst,time,wt,label)
+      } catch {
+        case ex: java.lang.ArrayIndexOutOfBoundsException => {
+          println("AIOB:", line)
+          (-1, "-1",-1, 1.0,0.0, "NA")
+        }
+        case ex: java.lang.NumberFormatException =>
+          println("AIOB2:", line)
+          (-1, "-1", -1,1.0,0.0, "NA")
+      }
+    }.distinct.toDF("src","etype","dst","time","wt","label")
+
+    GraphFrame(v,e)
+  }
 }  
