@@ -127,17 +127,17 @@
             <artifactId>spark-sql_2.11</artifactId>
             <version>${spark.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/graphframes/graphframes -->
         <dependency>
             <groupId>graphframes</groupId>
             <artifactId>graphframes</artifactId>
-            <version>2.11-0.6.0-SNAPSHOT-spark2.2</version>
+            <version>0.6.0-spark2.2-s_2.11</version>
         </dependency>
         <dependency>
             <groupId>com.github.Data2Semantics</groupId>
             <artifactId>powerlaws</artifactId>
             <version>v0.1.0</version>
         </dependency>
-
     </dependencies>
 
     <build>

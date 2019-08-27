@@ -71,6 +71,73 @@ object TAGBuilder {
     tag_rdd.get_simple_tagrdd.flatMap(nd => Iterator((nd._1, nd._1), (nd._3, nd._3))).distinct
   }
 
+  def getGraphFrameFromGDF(listof_gdf: Array[String], sep: String, sc: SparkContext): GraphFrame = {
+
+    val gSQLContext = new SQLContext(sc)
+    import gSQLContext.implicits._
+    val data = sc.textFile(listof_gdf.mkString(",")
+                          ).filter(line => (line.startsWith("nodedef") == false) &&
+                                           line.startsWith("edgedef") == false).map(line => line.split(sep))
+    val v = data.filter(fields => fields.length == 7).map(fields => {
+      try {
+        getGDFVertexFromFields(fields)
+      } catch {
+        case ex: java.lang.ArrayIndexOutOfBoundsException => {
+          println("AIOB:", fields.mkString(sep))
+          (-1, "-1", 1.0, 1.0, 0.0, "NA", false)
+        }
+        case ex: java.lang.NumberFormatException => {
+          println("AIOB2:", fields.mkString(sep))
+          (-1, "-1", 1.0, 1.0, 0.0, "NA", false)
+        }
+      }
+    }).distinct().toDF("id", "vtype", "lat", "long", "wt", "label", "inNAI")
+
+    val e = data.filter(fields => fields.length == 6).map(fields => {
+      try {
+        getGDFEdgeFromFields(fields)
+      } catch {
+        case ex: java.lang.ArrayIndexOutOfBoundsException => {
+          println("AIOB:", fields.mkString(sep))
+          (-1, "-1", -1, 1.0, 0.0, "NA")
+        }
+        case ex: java.lang.NumberFormatException => {
+          println("AIOB2:", fields.mkString(sep))
+          (-1, "-1", -1, 1.0, 0.0, "NA")
+        }
+      }
+    }).distinct().toDF("src", "etype", "dst", "time", "wt", "label")
+
+    GraphFrame(v, e)
+  }
+
+  def getGDFEdgeFromFields(fields:Array[String]): (Int,String,Int,Double,Double,String) =
+  {
+    val src :Int= fields(0).toInt
+    val etype :String= fields(1)
+    val dst :Int= fields(2).toInt
+    val time :Double = fields(3).toDouble
+    val wt :Double= fields(4).toDouble
+    val label :String= fields(5)
+    (src,etype,dst,time,wt,label)
+  }
+  def getGDFVertexFromFields(fields: Array[String]): (Int,String,Double,Double,Double,String,Boolean) =
+  {
+    val id :Int= fields(0).toInt
+    val vtype :String = fields(1)
+    val lat :Double= fields(2).toDouble
+    val long :Double = fields(3).toDouble
+    val wt :Double = if(fields(4).equalsIgnoreCase("na") == false) fields(4).toDouble else Double.NaN
+    val label :String= fields(5)
+    var inNAI :Boolean= false
+    if (fields.length > 6)
+    {
+      if(fields(6).equals("0") || fields(6).equalsIgnoreCase("false"))
+        inNAI = false
+      else inNAI = true
+    }
+    (id, vtype, lat,long,wt, label, inNAI)
+  }
   def getGraphFrameFromGDF(gdf_v_filepath :String, gdf_e_filepath :String,sep:String, sc:SparkContext): GraphFrame = {
     /*
      * Read node def file
@@ -79,47 +146,31 @@ object TAGBuilder {
       import gSQLContext.implicits._
       val v = sc.textFile(gdf_v_filepath).filter(line => line.startsWith("nodedef") == false).map { line =>
         try {
-          val fields = line.split(sep)
-          val id :Int= fields(0).toInt
-          val vtype :String = fields(1)
-          val lat :Double= fields(2).toDouble
-          val long :Double = fields(3).toDouble
-          val wt :Double = fields(4).toDouble
-          val label :String= fields(5)
-          var inNAI :Boolean= false
-          if (fields.length > 6)
-            inNAI = fields(6).toBoolean
-          (id, vtype, lat,long,wt, label, inNAI)
+          getGDFVertexFromFields(line.split(sep) )
         } catch {
           case ex: java.lang.ArrayIndexOutOfBoundsException => {
             println("AIOB:", line)
             (-1, "-1", 1.0,1.0,  0.0, "NA", false)
           }
-          case ex: java.lang.NumberFormatException =>
+          case ex: java.lang.NumberFormatException => {
             println("AIOB2:", line)
             (-1, "-1", 1.0,1.0,  0.0, "NA", false)
-        }
+          }}
       }.distinct.toDF("id","vtype","lat","long","wt","label","inNAI")
 
     val e = sc.textFile(gdf_e_filepath).filter(line => line.startsWith("edgedef") == false).map { line =>
       try {
         val fields = line.split(sep)
-        val src :Int= fields(0).toInt
-        val etype :String= fields(1)
-        val dst :Int= fields(2).toInt
-        val time :Double = fields(3).toDouble
-        val wt :Double= fields(4).toDouble
-        val label :String= fields(5)
-        (src,etype,dst,time,wt,label)
+        getGDFEdgeFromFields(fields)
       } catch {
         case ex: java.lang.ArrayIndexOutOfBoundsException => {
           println("AIOB:", line)
           (-1, "-1",-1, 1.0,0.0, "NA")
         }
-        case ex: java.lang.NumberFormatException =>
+        case ex: java.lang.NumberFormatException => {
           println("AIOB2:", line)
           (-1, "-1", -1,1.0,0.0, "NA")
-      }
+      }}
     }.distinct.toDF("src","etype","dst","time","wt","label")
 
     GraphFrame(v,e)

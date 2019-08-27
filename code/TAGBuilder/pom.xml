@@ -8,18 +8,7 @@
     <properties>
         <scala.version>2.11.8</scala.version>
     </properties>
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>Artifactory-releases</name>
-            <url>https://artifactory.pnnl.gov:443/artifactory/remote-repos</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>Artifactory-snapshots</name>
-            <url>https://artifactory.pnnl.gov:443/artifactory/remote-repos</url>
-        </snapshotRepository>
-    </distributionManagement>
+
     <repositories>
         <repository>
             <id>SparkPackagesRepo</id>
