@@ -2,11 +2,11 @@ package gov.pnnl.builders
 
 import org.apache.spark.SparkContext
 import gov.pnnl.datamodel
+import gov.pnnl.datamodel.GlobalTypes._
 import gov.pnnl.datamodel.TAG
 import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.Edge
 import org.apache.spark.graphx.Graph
-import gov.pnnl.datamodel.GlobalTypes._
 import org.apache.spark.graphx.PartitionStrategy
 import org.apache.spark.sql.SQLContext
 import org.graphframes.GraphFrame
@@ -51,6 +51,37 @@ object TAGBuilder {
     }.distinct
   }
 
+  def init_tagrdd_varchar(filepath: String, sc: SparkContext, sep: String = ",")
+  : TAGRDD_VARCHAR
+  = {
+    sc.textFile(filepath).map { line =>
+      try {
+        val fields = line.split(sep)
+        var (srcStr,src) = (fields(0),fields(0).hashCode)
+        val etype = fields(1).toInt
+        val (dstStr,dst) = (fields(2),fields(2).hashCode)
+        val time = fields(3).toLong
+        val defaultWt = 0.0
+        (src, etype, dst, time, defaultWt, Array("src_label".toCharArray, "dst_label".toCharArray),
+          Array(srcStr.toCharArray,dstStr.toCharArray))
+      } catch {
+        case ex: java.lang.ArrayIndexOutOfBoundsException => {
+          println("AIOB:", line)
+          (-1, -1, -1, -1L, 0.0, Array.empty[Array[Char]], Array.empty[Array[Char]])
+        }
+        case ex: java.lang.NumberFormatException =>
+          println("AIOB2:", line)
+          (-1, -1, -1, -1L, 0.0, Array.empty[Array[Char]], Array.empty[Array[Char]])
+      }
+                              }.distinct
+  }
+
+  def init_rdd_varchar(rdd_varchar: TAGRDD_VARCHAR): Unit =
+  {
+    val inputTAGRDD : TAGRDD= rdd_varchar.map(e => (e._1, e._2, e._3, e._4,0.0,Array.empty[Int],
+                                                     Array.empty[Int]))
+    new TAG(inputTAGRDD)
+  }
   def init_rdd(filepath: String, sc: SparkContext, sep: String = ","): TAG = {
     val inputTAGRDD = init_tagrdd(filepath, sc, sep)
     new TAG(inputTAGRDD)
