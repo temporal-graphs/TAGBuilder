@@ -3,19 +3,19 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gov.pnnl.stm</groupId>
     <artifactId>STM_Base</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.4-SNAPSHOT</version>
     <inceptionYear>2016</inceptionYear>
     <properties>
-        <scala.version>2.11.8</scala.version>
-        <scala.version.major>2.11</scala.version.major>
-        <scala.compat.version>2.11</scala.compat.version>
-        <spark.version>2.4.2</spark.version>
+        <scala.version>2.12.15</scala.version>
+        <scala.version.major>2.12</scala.version.major>
+        <scala.compat.version>2.12</scala.compat.version>
+        <spark.version>3.2.0</spark.version>
     </properties>
 
     <repositories>
         <repository>
             <id>SparkPackagesRepo</id>
-            <url>http://dl.bintray.com/spark-packages/maven</url>
+            <url>https://repos.spark-packages.org/</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
@@ -51,13 +51,13 @@
        -->
         <dependency>
             <groupId>org.scalactic</groupId>
-            <artifactId>scalactic_2.11</artifactId>
-            <version>3.2.0-SNAP5</version>
+            <artifactId>scalactic_2.12</artifactId>
+            <version>3.3.0-SNAP3</version>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.11</artifactId>
-            <version>3.2.0-SNAP5</version>
+            <version>3.3.0-SNAP3</version>
             <!--
             <scope>test</scope>
             -->
@@ -65,8 +65,8 @@
 
         <dependency>
             <groupId>org.scalacheck</groupId>
-            <artifactId>scalacheck_2.11</artifactId>
-            <version>1.13.5</version>
+            <artifactId>scalacheck_2.12</artifactId>
+            <version>1.15.4</version>
             <!--
             <scope>test</scope>
             -->
@@ -74,53 +74,53 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.7</version>
+            <version>3.12.0</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.9.3</version>
+            <version>1.9.4</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.11</artifactId>
-            <version>2.1.2</version>
+            <artifactId>scala-logging_2.12</artifactId>
+            <version>3.9.4</version>
         </dependency>
         <dependency>
             <groupId>org.ini4j</groupId>
             <artifactId>ini4j</artifactId>
-            <version>0.5.1</version>
+            <version>0.5.4</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.9.9</version>
+            <version>2.10.12</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.11</artifactId>
+            <artifactId>spark-core_2.12</artifactId>
             <version>${spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-graphx_2.11</artifactId>
+            <artifactId>spark-graphx_2.12</artifactId>
             <version>${spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-mllib_2.11</artifactId>
+            <artifactId>spark-mllib_2.12</artifactId>
             <version>${spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.11</artifactId>
+            <artifactId>spark-sql_2.12</artifactId>
             <version>${spark.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/graphframes/graphframes -->
         <dependency>
             <groupId>graphframes</groupId>
             <artifactId>graphframes</artifactId>
-            <version>0.7.0-spark2.4-s_2.11</version>
+            <version>0.8.2-spark3.2-s_2.12</version>
         </dependency>
         <dependency>
             <groupId>com.github.Data2Semantics</groupId>

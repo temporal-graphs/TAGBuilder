@@ -14,5 +14,4 @@ import org.scalatest._
  * @author puro755
  *
  */
-abstract class BuilderTestAbstract extends FlatSpec with
-  OptionValues with Inside with Inspectors
+abstract class BuilderTestAbstract
